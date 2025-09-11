@@ -1,0 +1,45 @@
+services:
+  qwen3-vllm:
+    image: vllm/vllm-openai:latest
+    container_name: qwen3-vllm
+    restart: unless-stopped
+    ports:
+      - "8080:8000"                       # наружу 8080 → внутри 8000
+    environment:
+      NVIDIA_VISIBLE_DEVICES: "all"
+      VLLM_LOG_LEVEL: "INFO"
+      VLLM_ATTENTION_BACKEND: "FLASHINFER"
+      PYTORCH_CUDA_ALLOC_CONF: "expandable_segments:True"   # обязательно в кавычках
+      # HF_TOKEN: "${HF_TOKEN:-}"         # раскомментируй при необходимости
+    volumes:
+      - /home/kovynev-sergey/.cache/huggingface:/root/.cache/huggingface
+    gpus: all
+    command:
+      - "--model"
+      - "unsloth/Qwen3-8B-unsloth-bnb-4bit"
+      - "--quantization"
+      - "bitsandbytes"
+      - "--load-format"
+      - "bitsandbytes"
+      - "--dtype"
+      - "auto"
+      - "--max-model-len"
+      - "4096"
+      - "--kv-cache-dtype"
+      - "fp8"
+      - "--gpu-memory-utilization"
+      - "0.75"
+      - "--max-num-seqs"
+      - "4"
+      - "--max-num-batched-tokens"
+      - "4096"
+      - "--enforce-eager"
+      - "--reasoning-parser"
+      - "qwen3"
+      - "--trust-remote-code"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8000"
+      - "--api-key"
+      - "${API_KEY:-test}"

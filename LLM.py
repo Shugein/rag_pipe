@@ -1,6 +1,8 @@
 from openai import OpenAI
 
-client = OpenAI(base_url="http://localhost:8080/v1", api_key="test")
+base_url = "http://localhost:8080/v1"
+net_url = 'http://95.131.149.43:8080/v1'
+client = OpenAI(base_url=net_url, api_key="test")
 
 resp = client.chat.completions.create(
     model="unsloth/Qwen3-8B-unsloth-bnb-4bit",

@@ -1,2 +1,9 @@
 .env
 .venv
+*.txt
+*.arrow
+*.json
+
+
+/data/ru_news_5k
+/data/ru_news_txt

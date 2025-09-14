@@ -29,6 +29,23 @@ RAG_pipeline.py        # Тонкий лаунчер: перенаправляе
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
+## Локальный Weaviate (Docker)
+
+В составе `docker-compose.yml` есть сервис `weaviate`.
+
+Запуск:
+```
+docker compose up -d weaviate
+```
+
+Подключение из API:
+- В теле запросов `/ingest` и `/query` укажите `weaviate_url: "http://localhost:8080"`.
+- Для локального embedded-режима опускайте поле `weaviate_url` (по умолчанию будет embedded).
+
+Параметры сервиса:
+- `DEFAULT_VECTORIZER_MODULE=none` — используем BYO-вектора (эмбеддинги из HuggingFace через LlamaIndex).
+- Данные сохраняются в volume `weaviate_data`.
+
 ## Эндпойнты
 
 - `GET /health` — проверка состояния
@@ -51,3 +68,19 @@ RAG_RUN_INTEGRATION=1 pytest -q tests/test_api_query.py -k integration
 ```
 
 Примеры обращений к API см. также в верхних docstring файлов `tests/test_api_ingest.py` и `tests/test_api_query.py`.
+
+## Зависимости
+
+Минимальный набор (пример):
+```
+pip install \
+  fastapi uvicorn \
+  llama-index-core llama-index-embeddings-huggingface \
+  weaviate-client[embedded] \
+  sentence-transformers \
+  openai
+```
+
+Примечания:
+- Для embedded Weaviate нужен `weaviate-client[embedded]`.
+- При использовании Docker Weaviate достаточно `weaviate-client` без extras.

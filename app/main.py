@@ -133,7 +133,17 @@ def query(req: QueryRequest) -> QueryResponse:
         )
         emb_cfg = EmbeddingConfig(model_name=req.embedding_model)
 
-        client = weaviate.Client(embedded_options=EmbeddedOptions()) 
+        if vs_cfg.use_embedded:
+            client = weaviate.Client(embedded_options=EmbeddedOptions())
+        else:
+            auth = None
+            if vs_cfg.weaviate_api_key:
+                try:
+                    from weaviate.auth import AuthApiKey as _AuthApiKey  # type: ignore
+                except Exception:
+                    from weaviate import AuthApiKey as _AuthApiKey  # type: ignore
+                auth = _AuthApiKey(vs_cfg.weaviate_api_key)
+            client = weaviate.Client(url=vs_cfg.weaviate_url, auth_client_secret=auth)
         vector_store = WeaviateVectorStore(weaviate_client=client, index_name=vs_cfg.index_name)
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
 

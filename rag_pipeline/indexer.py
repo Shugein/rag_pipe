@@ -12,9 +12,6 @@ from llama_index.vector_stores.weaviate import WeaviateVectorStore
 from .config import EmbeddingConfig, IndexingConfig, VectorStoreConfig
 from .vectorstore import make_weaviate_client
 
-import weaviate
-from weaviate.embedded import EmbeddedOptions
-
 class RAGIndexer:
     """Индексатор корпуса документов в Weaviate через LlamaIndex.
 
@@ -29,7 +26,8 @@ class RAGIndexer:
 
         Settings.embed_model = HuggingFaceEmbedding(model_name=self.emb_cfg.model_name)
 
-        self._client = weaviate.Client(embedded_options=EmbeddedOptions()) #локальный встроенный сервер Weaviate (без внешних зависимостей)
+        # Локальный embedded или удалённый (Docker/K8s) — согласно конфигу
+        self._client = make_weaviate_client(self.vs_cfg)
         self._vector_store = WeaviateVectorStore(weaviate_client=self._client, index_name=self.vs_cfg.index_name)
         self._storage_context = StorageContext.from_defaults(vector_store=self._vector_store)
 
